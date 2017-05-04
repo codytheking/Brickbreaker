@@ -1,6 +1,6 @@
 
 /**
- * Write a description of class Paddle here.
+ * Paddle is moved by player and bounces ball off of it into bricks.
  * 
  * @author (your name) 
  * @version (a version number or a date)

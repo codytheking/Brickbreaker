@@ -1,6 +1,7 @@
 
 /**
- * Write a description of class Ball here.
+ * Ball bounces off walls, Paddle, and Brick.
+ * It gives player points when hitting Brick.
  * 
  * @author (your name) 
  * @version (a version number or a date)
@@ -14,7 +15,7 @@ public class Ball
 
     public Ball(int r, int vx, int vy, int screenW, int screenH)
     {
-        x = screenW / 2;
+        x = (int) ((screenW / 2) * (Math.random() + 0.5));
         y = screenH / 2;
         this.r = r;
         this.vx = vx;
@@ -118,7 +119,7 @@ public class Ball
     
     public void resetVals()
     {
-        x = defaults[0];
+        x = (int) (defaults[0] * (Math.random() + 0.5));
         y = defaults[1];
         vx = defaults[2];
         vy = defaults[3];

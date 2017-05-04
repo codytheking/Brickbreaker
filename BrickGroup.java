@@ -1,6 +1,6 @@
 
 /**
- * Write a description of class BrickGroup here.
+ * BrickGroup is a grid of Bricks.
  * 
  * @author (your name) 
  * @version (a version number or a date)
