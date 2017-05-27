@@ -21,6 +21,10 @@
  *      -Fixed exception handling in initializeHighScores and   *
  *      saveScores (try-catch instead of throws for method)     *
  *                                                              *
+ * version 1.3: 05/26/2017                                      *
+ *      -Can enter high score in new JavaFX window instead of   *
+ *      a console window.                                       *
+ *                                                              *
  ****************************************************************/
 
 import java.util.Random;
@@ -28,6 +32,7 @@ import java.util.Scanner;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.Writer;
 import java.io.BufferedWriter;
@@ -40,7 +45,11 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
@@ -54,7 +63,6 @@ import javafx.event.ActionEvent;
 
 public class Brickbreaker extends Application 
 {
-    private final Duration TRANSLATE_DURATION = Duration.seconds(0.25);
     private final int VEL = 2;
 
     private boolean gamePaused, recorded;
@@ -64,12 +72,15 @@ public class Brickbreaker extends Application
     private Paddle p1;
     private BrickGroup brickGroup;
     private List<HighScore> highScores;
+    private Stage scoreStage;
+    private TextField scoreField;
+    private Button btn;
 
     /**
      * Initialize class variables.
      * Create a Ball, Paddle, and BrickGroup.
      */
-    public Brickbreaker() throws IOException
+    public Brickbreaker()
     {
         gamePaused = true;
         recorded = false;
@@ -83,6 +94,9 @@ public class Brickbreaker extends Application
         p1 = new Paddle(315, 485, 70, 15, VEL * 10);
         brickGroup = new BrickGroup(4, 6, screenWidth, 100, 15);
         highScores = initializeHighScores();
+        scoreStage = new Stage();
+        scoreField = new TextField();
+        btn = new Button("Enter");
     }
 
     /**
@@ -97,27 +111,18 @@ public class Brickbreaker extends Application
      * Sets up GUI and key/mouse handlers.
      */
     @Override 
-    public void start(Stage stage) throws Exception 
+    public void start(Stage stage) 
     {
         Canvas canvas = new Canvas(screenWidth, screenHeight);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        Timeline tl = new Timeline(new KeyFrame(Duration.millis(10), (ActionEvent e) -> run(gc)));
-        /*Timeline tl = new Timeline(new KeyFrame(Duration.millis(10), 
-        new EventHandler<ActionEvent>()
-        {
-        @Override
-        public void handle(ActionEvent e) 
-        {
-        run(gc);
-        }
-        }));*/
+        Timeline tl = new Timeline(new KeyFrame(Duration.millis(10), e -> run(gc)));
 
         tl.setCycleCount(Timeline.INDEFINITE);
 
         canvas.setFocusTraversable(true);
 
-        canvas.setOnKeyPressed((KeyEvent e) ->
+        canvas.setOnKeyPressed(e ->
             {
                 if(e.getCode() == KeyCode.LEFT) 
                 {    
@@ -135,37 +140,7 @@ public class Brickbreaker extends Application
                 }
             });
 
-        /*canvas.setOnKeyPressed(new EventHandler<KeyEvent>() 
-        {
-        @Override
-        public void handle(KeyEvent e) 
-        {
-        if(e.getCode() == KeyCode.LEFT) 
-        {    
-        p1.move("left");
-        }
-
-        else if(e.getCode() == KeyCode.RIGHT)
-        {
-        p1.move("right");
-        }
-
-        else if(e.getCode() == KeyCode.L)
-        {
-        lives++;
-        }
-        }
-        });*/
-
         canvas.setOnMouseMoved((MouseEvent e) -> p1.move((int) e.getX(), screenWidth));
-        /*canvas.setOnMouseMoved(new EventHandler<MouseEvent>() 
-        {
-        @Override
-        public void handle(MouseEvent e) 
-        {
-        p1.move((int) e.getX(), screenWidth);
-        }
-        });*/ 
 
         canvas.setOnMouseClicked((MouseEvent e) -> 
             {
@@ -175,23 +150,21 @@ public class Brickbreaker extends Application
                     gamePaused = false;
                 }
             });
-        /*canvas.setOnMouseClicked(new EventHandler<MouseEvent>() 
-        {
-        @Override
-        public void handle(MouseEvent e)
-        {
-        if(gamePaused)
-        {
-        ball.resetVals();
-        gamePaused = false;
-        }
-        }
-        });*/
 
         stage.setTitle("Brickbreaker by King");
         stage.setScene(new Scene(new StackPane(canvas)));
         stage.show();
         tl.play();
+
+        VBox pane = new VBox(4);
+        pane.getChildren().add(new Label("You scored in the top 5! Enter your name below."));
+        pane.getChildren().add(scoreField);
+        pane.getChildren().add(btn);
+        scoreStage.setScene(new Scene(pane, 225, 100));
+
+        /*Stage secondStage = new Stage();
+        secondStage.setScene(new Scene(new HBox(4, new Label("Second window"))));
+        secondStage.show();*/
     }
 
     /**
@@ -264,6 +237,8 @@ public class Brickbreaker extends Application
                 nameList += high.getName() + "\n";
                 scoreList += high.getScore() + "\n";
             }
+            
+            
 
             // display high scores
             gc.fillText(nameList, screenWidth / 2 - 75, 295);
@@ -271,13 +246,29 @@ public class Brickbreaker extends Application
 
             if(!recorded && isInTopScores())
             {
-                Scanner in = new Scanner(System.in);
+                /*Scanner in = new Scanner(System.in);
                 System.out.print("You scored in the top 5! Enter your name: ");
                 String name = in.nextLine();
                 HighScore newHigh = new HighScore(name, points);
                 insertNewScore(newHigh);
                 saveScores();
-                recorded = true;
+                recorded = true;*/
+
+                scoreStage.show();
+
+                btn.setOnAction(e -> 
+                    {
+                        String name = scoreField.getText();
+                        if(name.length() > 15)
+                        {
+                            name = name.substring(0, 15);
+                        }
+                        insertNewScore(new HighScore(name, points));
+                        
+                        scoreStage.close();
+                        saveScores();
+                        recorded = true;
+                    });
             }
         }
 
@@ -343,28 +334,22 @@ public class Brickbreaker extends Application
     {
         File file = new File("HighScores.txt");
 
-        if(file.exists())
-        {
-            file.delete();
-        }
-
         try
         {
-            file.createNewFile();
-        }
-        catch(IOException e)
-        {}
+            Writer writer = new BufferedWriter(new OutputStreamWriter(
+                        new FileOutputStream(file), "utf-8"));
 
-        try(Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream("HighScores.txt"), "utf-8")))
-        {
             for(HighScore high: highScores)
             {
                 writer.write(high.getName() + ", " + high.getScore() + "\n");
             }
+
+            writer.close();
         }
         catch(IOException e)
-        {}
+        {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -378,16 +363,9 @@ public class Brickbreaker extends Application
 
         try
         {
-            file.createNewFile();
-        }
-        catch(IOException e)
-        {}
-        
-        try
-        {
             inFile = new Scanner(file);
         }
-        catch(IOException e)
+        catch(FileNotFoundException e)
         {}
 
         while(inFile.hasNext())
