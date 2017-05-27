@@ -24,6 +24,8 @@
  * version 1.3: 05/26/2017                                      *
  *      -Can enter high score in new JavaFX window instead of   *
  *      a console window.                                       *
+ *      -Fixed bug where program crashed if high scores file    *
+ *      did not exist when program was run.                     *
  *                                                              *
  ****************************************************************/
 
@@ -237,8 +239,6 @@ public class Brickbreaker extends Application
                 nameList += high.getName() + "\n";
                 scoreList += high.getScore() + "\n";
             }
-            
-            
 
             // display high scores
             gc.fillText(nameList, screenWidth / 2 - 75, 295);
@@ -246,28 +246,41 @@ public class Brickbreaker extends Application
 
             if(!recorded && isInTopScores())
             {
-                /*Scanner in = new Scanner(System.in);
-                System.out.print("You scored in the top 5! Enter your name: ");
-                String name = in.nextLine();
-                HighScore newHigh = new HighScore(name, points);
-                insertNewScore(newHigh);
-                saveScores();
-                recorded = true;*/
-
                 scoreStage.show();
 
                 btn.setOnAction(e -> 
                     {
                         String name = scoreField.getText();
-                        if(name.length() > 15)
+
+                        if(name.length() > 0)
                         {
-                            name = name.substring(0, 15);
+                            if(name.length() > 15)
+                            {
+                                name = name.substring(0, 15);
+                            }
+                            insertNewScore(new HighScore(name, points));
+
+                            scoreStage.close();
+                            saveScores();
+                            recorded = true;
                         }
-                        insertNewScore(new HighScore(name, points));
-                        
-                        scoreStage.close();
-                        saveScores();
-                        recorded = true;
+                    });
+
+                scoreField.setOnKeyPressed(e ->
+                    {
+                        if(!recorded && e.getCode() == KeyCode.ENTER)
+                        {
+                            String name = scoreField.getText();
+                            if(name.length() > 15)
+                            {
+                                name = name.substring(0, 15);
+                            }
+                            insertNewScore(new HighScore(name, points));
+
+                            scoreStage.close();
+                            saveScores();
+                            recorded = true;
+                        }
                     });
             }
         }
@@ -366,7 +379,9 @@ public class Brickbreaker extends Application
             inFile = new Scanner(file);
         }
         catch(FileNotFoundException e)
-        {}
+        {
+            return scores;
+        }
 
         while(inFile.hasNext())
         {
