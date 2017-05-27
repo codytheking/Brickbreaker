@@ -23,7 +23,7 @@ public class BrickGroup
         }
     }
 
-    public int hitBrick(int x, int y)
+    public int hitBrick(Ball ball)
     {
         for(int r = 0; r < bricks.length; r++)
         {
@@ -31,18 +31,21 @@ public class BrickGroup
             {
                 Brick b = bricks[r][c];
 
+                int x = ball.getX();
+                int y = ball.getY();
+                int rad = ball.getR();
                  // hit side of brick (pretty good, but some bugs)
-                if(b.isVisible() && ((x >= b.getX() - 12 && x <= b.getX()) ||
-                        (x > b.getX() + b.getW() && x <= b.getX() + b.getW() + 2)) && 
-                        y >= b.getY() - 7 && y <= b.getY() + b.getH() + 2)
+                if(b.isVisible() && ((x + 2*rad >= b.getX() && x <= b.getX()) ||
+                        (x + rad > b.getX() + b.getW() && x <= b.getX() + b.getW())) && 
+                        y + rad >= b.getY() && y + rad <= b.getY() + b.getH())
                 {
                     b.brickWasHit();
                     return 2;
                 }
                 
                 // hit top or bottom of brick
-                else if(b.isVisible() && (x > b.getX() && x < b.getX() + b.getW() - 10) &&
-                        y >= b.getY() && y <= b.getY() + b.getH())
+                else if(b.isVisible() && (x + rad > b.getX()  && x + rad < b.getX() + b.getW()) &&
+                        y + 2*rad >= b.getY() && y <= b.getY() + b.getH())
                 {
                     b.brickWasHit();
                     return 1;

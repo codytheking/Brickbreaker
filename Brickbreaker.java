@@ -65,7 +65,7 @@ import javafx.event.ActionEvent;
 
 public class Brickbreaker extends Application 
 {
-    private final int VEL = 2;
+    private final int VEL = 1;
 
     private boolean gamePaused, recorded;
     private int screenHeight, screenWidth;
@@ -118,7 +118,7 @@ public class Brickbreaker extends Application
         Canvas canvas = new Canvas(screenWidth, screenHeight);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        Timeline tl = new Timeline(new KeyFrame(Duration.millis(10), e -> run(gc)));
+        Timeline tl = new Timeline(new KeyFrame(Duration.millis(5), e -> run(gc)));
 
         tl.setCycleCount(Timeline.INDEFINITE);
 
@@ -185,7 +185,7 @@ public class Brickbreaker extends Application
         if(!gamePaused) 
         {
             gamePaused = ball.move(p1, screenWidth, screenHeight, brickGroup);
-            gc.fillOval(ball.getX(), ball.getY(), ball.getR(), ball.getR());
+            gc.fillOval(ball.getX(), ball.getY(), 2*ball.getR(), 2*ball.getR());
 
             if(gamePaused)
             {

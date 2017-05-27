@@ -9,15 +9,15 @@
 public class Ball
 {
     private int x, y;
-    private int r;
+    private int d;
     private int vx, vy;
     private int[] defaults;
 
-    public Ball(int r, int vx, int vy, int screenW, int screenH)
+    public Ball(int d, int vx, int vy, int screenW, int screenH)
     {
         x = (int) ((screenW / 2) * (Math.random() + 0.5));
         y = screenH / 2;
-        this.r = r;
+        this.d = d;
         this.vx = vx;
         this.vy = vy;
         
@@ -36,7 +36,7 @@ public class Ball
     
     public int getR()
     {
-        return r;
+        return d/2;
     }
 
     public int getVx()
@@ -55,18 +55,18 @@ public class Ball
 
         // account for hitting off side of paddle)
         
-        int hit = bG.hitBrick(getX(), getY());
+        int hit = bG.hitBrick(this);
         
         // bounce off paddle (middle: normal bounce)
         if(getX() >= p.getX() + (p.getW() / 3) && getX() <= p.getX() + (p.getW() / 3 * 2) && 
-                (getY() + getR() >= screenH - p.getH())) 
+                (getY() + 2*getR() >= screenH - p.getH())) 
         {
             vy = -vy;
         }
 
         // bounce off paddle (left third: bounce back to left, faster)
         else if(getX() >= p.getX() && getX() < p.getX() + (p.getW() / 3) && 
-                (getY() + getR() >= screenH - p.getH())) 
+                (getY() + 2*getR() >= screenH - p.getH())) 
         {
             vy = -vy;
             vx = -2 * Math.abs(vx);
@@ -74,7 +74,7 @@ public class Ball
         
         // bounce off paddle (right third: bounce back to right, faster)
         else if(getX() > p.getX() + (p.getW() / 3 * 2) && getX() <= p.getX() + p.getW() && 
-                (getY() + getR() >= screenH - p.getH())) 
+                (getY() + 2*getR() >= screenH - p.getH())) 
         {
             vy = -vy;
             vx = 2 * Math.abs(vx);
@@ -105,7 +105,7 @@ public class Ball
         }
         
         // lose life by hitting bottom
-        else if(getY() >= screenH - getR())
+        else if(getY() + 2*getR() >= screenH)
         {
             return true;
         }
