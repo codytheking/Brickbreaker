@@ -88,22 +88,22 @@ public class Ball
         int hit = bG.hitBrick(this);
         
         // bounce off paddle (middle: normal bounce)
-        if(getX() >= p.getX() + (p.getW() / 3) && getX() <= p.getX() + (p.getW() / 3 * 2) && 
+        if(getX() >= p.getX() + (p.getW() / 10 * 3) && getX() <= p.getX() + (p.getW() / 10 * 7) && 
                 (getY() + 2*getR() >= screenH - p.getH())) 
         {
             vy = -vy;
         }
 
-        // bounce off paddle (left third: bounce back to left, faster)
-        else if(getX() >= p.getX() && getX() < p.getX() + (p.getW() / 3) && 
+        // bounce off paddle (left quarter: bounce back to left, faster)
+        else if(getX() >= p.getX() && getX() < p.getX() + (p.getW() / 10 * 3) && 
                 (getY() + 2*getR() >= screenH - p.getH())) 
         {
             vy = -vy;
             vx = -2 * Math.abs(vx);
         }
         
-        // bounce off paddle (right third: bounce back to right, faster)
-        else if(getX() > p.getX() + (p.getW() / 3 * 2) && getX() <= p.getX() + p.getW() && 
+        // bounce off paddle (right quarter: bounce back to right, faster)
+        else if(getX() > p.getX() + (p.getW() / 10 * 7) && getX() <= p.getX() + p.getW() && 
                 (getY() + 2*getR() >= screenH - p.getH())) 
         {
             vy = -vy;
@@ -135,7 +135,7 @@ public class Ball
         }
         
         // lose life by hitting bottom (or moving vertically or lost off screen)
-        else if(getY() + 2*getR() >= screenH || vx > 64 || getY() < -2*getR())
+        if(getY() > screenH + 30 || getY() < -30 || vx > 64)
         {
             return true;
         }
